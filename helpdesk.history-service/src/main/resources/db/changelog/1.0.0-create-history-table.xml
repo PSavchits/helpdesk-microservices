@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                   http://www.liquibase.org/xml/ns/mongodb
+                   http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+
+    <changeSet author="PSavchits" id="create-history-collection">
+        <mongodb:createCollection collectionName="history"/>
+        <mongodb:addIndex collectionName="history" indexName="ticket_id_index" unique="false">
+            <indexAttribute name="ticket_id" type="ASC"/>
+        </mongodb:addIndex>
+        <mongodb:addIndex collectionName="history" indexName="user_id_index" unique="false">
+            <indexAttribute name="user_id" type="ASC"/>
+        </mongodb:addIndex>
+        <mongodb:addIndex collectionName="history" indexName="created_index" unique="false">
+            <indexAttribute name="created" type="ASC"/>
+        </mongodb:addIndex>
+        <mongodb:addIndex collectionName="history" indexName="action_index" unique="false">
+            <indexAttribute name="action_id" type="ASC"/>
+        </mongodb:addIndex>
+        <mongodb:addIndex collectionName="history" indexName="description_index" unique="false">
+            <indexAttribute name="description" type="ASC"/>
+        </mongodb:addIndex>
+    </changeSet>
+</databaseChangeLog>

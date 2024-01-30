@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet author="initial" id="create-user-table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="user_id_seq"/>
+            </not>
+        </preConditions>
+        <createSequence sequenceName="user_id_seq" startValue="1" incrementBy="1" cycle="false"/>
+        <createTable tableName="_user">
+            <column name="id" type="INTEGER" defaultValueSequenceNext="user_id_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="firstname" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastname" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <insert tableName="_user">
+            <column name="firstname" value="Pavel"/>
+            <column name="lastname" value="Doesss"/>
+            <column name="role" value="EMPLOYEE"/>
+            <column name="email" value="user1_mogilev@yopmail.com"/>
+            <column name="password" value="$2a$12$UBXPkMHbwkC5ZFUWrInSKu65ba.joR3ZsVv2BoMhHH.GXtFsHR4p2"/>
+        </insert>
+        <insert tableName="_user">
+            <column name="firstname" value="Vlad"/>
+            <column name="lastname" value="Doaasde"/>
+            <column name="role" value="EMPLOYEE"/>
+            <column name="email" value="user2_mogilev@yopmail.com"/>
+            <column name="password" value="$2a$12$UBXPkMHbwkC5ZFUWrInSKu65ba.joR3ZsVv2BoMhHH.GXtFsHR4p2"/>
+        </insert>
+        <insert tableName="_user">
+            <column name="firstname" value="Dory"/>
+            <column name="lastname" value="Doeqqq"/>
+            <column name="role" value="MANAGER"/>
+            <column name="email" value="manager1_mogilev@yopmail.com"/>
+            <column name="password" value="$2a$12$UBXPkMHbwkC5ZFUWrInSKu65ba.joR3ZsVv2BoMhHH.GXtFsHR4p2"/>
+        </insert>
+        <insert tableName="_user">
+            <column name="firstname" value="Nah"/>
+            <column name="lastname" value="Doeasd"/>
+            <column name="role" value="MANAGER"/>
+            <column name="email" value="manager2_mogilev@yopmail.com"/>
+            <column name="password" value="$2a$12$UBXPkMHbwkC5ZFUWrInSKu65ba.joR3ZsVv2BoMhHH.GXtFsHR4p2"/>
+        </insert>
+        <insert tableName="_user">
+            <column name="firstname" value="Gav"/>
+            <column name="lastname" value="Gabbal"/>
+            <column name="role" value="ENGINEER"/>
+            <column name="email" value="engineer1_mogilev@yopmail.com"/>
+            <column name="password" value="$2a$12$UBXPkMHbwkC5ZFUWrInSKu65ba.joR3ZsVv2BoMhHH.GXtFsHR4p2"/>
+        </insert>
+        <insert tableName="_user">
+            <column name="firstname" value="May"/>
+            <column name="lastname" value="Dot"/>
+            <column name="role" value="ENGINEER"/>
+            <column name="email" value="engineer2_mogilev@yopmail.com"/>
+            <column name="password" value="$2a$12$UBXPkMHbwkC5ZFUWrInSKu65ba.joR3ZsVv2BoMhHH.GXtFsHR4p2"/>
+        </insert>
+    </changeSet>
+    <changeSet author="PSavchits" id="create-token-table">
+        <createSequence sequenceName="token_seq" startValue="1" incrementBy="1" cycle="false"/>
+        <createTable tableName="token">
+            <column name="id" type="INTEGER" defaultValueSequenceNext="token_seq">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="token" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false" />
+            </column>
+            <column name="token_type" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="revoked" type="BOOLEAN" />
+            <column name="expired" type="BOOLEAN" />
+            <column name="user_id" type="INTEGER">
+                <constraints nullable="false" foreignKeyName="FK_Token_User" references="_user(id)" />
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

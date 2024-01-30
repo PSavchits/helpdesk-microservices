@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master', credentialsId: 'your-credentials-id', url: 'https://github.com/PSavchits/help-desk.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build successful! Deploying...'
+        }
+        failure {
+            echo 'Build failed! Notify someone...'
+        }
+    }
+}

@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet author="PSavchits" id="create-category-table">
+        <createTable tableName="category">
+            <column name="id" type="INT">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <createTable tableName="ticket">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="VARCHAR(500)">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_on" type="TIMESTAMP">
+                <constraints nullable="true" />
+            </column>
+            <column name="desired_resolution_date" type="TIMESTAMP">
+                <constraints nullable="true" />
+            </column>
+            <column name="assignee_id" type="INT">
+                </column>
+            <column name="owner_id" type="INT">
+                </column>
+            <column name="state_id" type="VARCHAR(255)">
+                </column>
+            <column name="category_id" type="INT">
+                </column>
+            <column name="urgency_id" type="VARCHAR(255)">
+            </column>
+            <column name="approver_id" type="INT">
+            </column>
+
+        </createTable>
+        <addForeignKeyConstraint baseTableName="ticket" baseColumnNames="assignee_id"
+                                 referencedTableName="_user" referencedColumnNames="id" constraintName="fk_assignee_id" />
+
+        <addForeignKeyConstraint baseTableName="ticket" baseColumnNames="owner_id"
+                                 referencedTableName="_user" referencedColumnNames="id" constraintName="fk_owner_id" />
+
+        <addForeignKeyConstraint baseTableName="ticket" baseColumnNames="category_id"
+                                 referencedTableName="category" referencedColumnNames="id" constraintName="fk_category_id" />
+
+        <addForeignKeyConstraint baseTableName="ticket" baseColumnNames="approver_id"
+                                 referencedTableName="_user" referencedColumnNames="id" constraintName="fk_approver_id" />
+        </changeSet>
+         <changeSet author="PSavchits" id="create-feedback-table" >
+        <createTable tableName="feedback">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="rate" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="date" type="TIMESTAMP" />
+            <column name="text" type="VARCHAR(500)" />
+            <column name="ticket_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="feedback" baseColumnNames="user_id"
+                                 referencedTableName="_user" referencedColumnNames="id" constraintName="fk_user_id" />
+
+        <addForeignKeyConstraint baseTableName="feedback" baseColumnNames="ticket_id"
+                                 referencedTableName="ticket" referencedColumnNames="id" constraintName="fk_ticket_id" />
+        </changeSet>
+    <changeSet author="PSavchits" id="create-comment-table" >
+        <createTable tableName="comment">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="text" type="VARCHAR(500)" />
+            <column name="date" type="TIMESTAMP" />
+            <column name="ticket_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="comment" baseColumnNames="user_id"
+                                 referencedTableName="_user" referencedColumnNames="id" constraintName="fk_user_id" />
+
+        <addForeignKeyConstraint baseTableName="comment" baseColumnNames="ticket_id"
+                                 referencedTableName="ticket" referencedColumnNames="id" constraintName="fk_ticket_id" />
+    </changeSet>
+    <changeSet author="PSavchits" id="create_attachment_table">
+        <createTable tableName="attachment">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="blob" type="BLOB">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ticket_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="attachment" baseColumnNames="ticket_id"
+                                 referencedTableName="ticket" referencedColumnNames="id" constraintName="fk_ticket_attachment"/>
+    </changeSet>
+    <changeSet id="create-category1" author="PSavchits">
+        <insert tableName="category">
+            <column name="id" valueNumeric="1"/>
+            <column name="name" value="Application &amp; Services"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-category2" author="PSavchits">
+        <insert tableName="category">
+            <column name="id" valueNumeric="2"/>
+            <column name="name" value="Benefits &amp; Paper Work"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-category3" author="PSavchits">
+        <insert tableName="category">
+            <column name="id" valueNumeric="3"/>
+            <column name="name" value="Hardware &amp; Software"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-category4" author="PSavchits">
+        <insert tableName="category">
+            <column name="id" valueNumeric="4"/>
+            <column name="name" value="People Management"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-category5" author="PSavchits">
+        <insert tableName="category">
+            <column name="id" valueNumeric="5"/>
+            <column name="name" value="Security &amp; Access"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-category6" author="PSavchits">
+        <insert tableName="category">
+            <column name="id" valueNumeric="6"/>
+            <column name="name" value="Workplaces &amp; Facilities"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-ticket" author="PSavchits">
+        <insert tableName="ticket">
+            <column name="name" value="Ticket 1"/>
+            <column name="description" value="Ticket Description"/>
+            <column name="created_on" valueDate="2023-11-01T12:00:00"/>
+            <column name="desired_resolution_date" valueDate="2023-12-01T12:00:00"/>
+            <column name="assignee_id" valueNumeric="3"/>
+            <column name="owner_id" valueNumeric="1"/>
+            <column name="state_id" value="NEW"/>
+            <column name="category_id" valueNumeric="1"/>
+            <column name="urgency_id" value="HIGH"/>
+            <column name="approver_id" valueNumeric="6"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-ticket1" author="PSavchits">
+        <insert tableName="ticket">
+            <column name="name" value="GTicket 4"/>
+            <column name="description" value="Ticket Description"/>
+            <column name="created_on" valueDate="2023-11-01T12:00:00"/>
+            <column name="desired_resolution_date" valueDate="2024-01-10T12:00:00"/>
+            <column name="assignee_id" valueNumeric="3"/>
+            <column name="owner_id" valueNumeric="1"/>
+            <column name="state_id" value="DONE"/>
+            <column name="category_id" valueNumeric="4"/>
+            <column name="urgency_id" value="HIGH"/>
+            <column name="approver_id" valueNumeric="3"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-ticket2" author="PSavchits">
+        <insert tableName="ticket">
+            <column name="name" value="Ticket 3"/>
+            <column name="description" value="Ticket Description"/>
+            <column name="created_on" valueDate="2023-11-01T12:00:00"/>
+            <column name="desired_resolution_date" valueDate="2023-11-01T12:00:00"/>
+            <column name="assignee_id" valueNumeric="1"/>
+            <column name="owner_id" valueNumeric="3"/>
+            <column name="state_id" value="NEW"/>
+            <column name="category_id" valueNumeric="2"/>
+            <column name="urgency_id" value="LOW"/>
+            <column name="approver_id" valueNumeric="1"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-ticket3" author="PSavchits">
+        <insert tableName="ticket">
+            <column name="name" value="Ticket 8"/>
+            <column name="description" value="Ticket Description"/>
+            <column name="created_on" valueDate="2023-12-12T12:00:00"/>
+            <column name="desired_resolution_date" valueDate="2024-03-01T12:00:00"/>
+            <column name="assignee_id" valueNumeric="5"/>
+            <column name="owner_id" valueNumeric="3"/>
+            <column name="state_id" value="DONE"/>
+            <column name="category_id" valueNumeric="3"/>
+            <column name="urgency_id" value="HIGH"/>
+            <column name="approver_id" valueNumeric="5"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-ticket4" author="PSavchits">
+        <insert tableName="ticket">
+            <column name="name" value="GTicket 15"/>
+            <column name="description" value="Ticket Description"/>
+            <column name="created_on" valueDate="2023-12-12T12:00:00"/>
+            <column name="desired_resolution_date" valueDate="2024-12-01T12:00:00"/>
+            <column name="assignee_id" valueNumeric="5"/>
+            <column name="owner_id" valueNumeric="1"/>
+            <column name="state_id" value="DONE"/>
+            <column name="category_id" valueNumeric="4"/>
+            <column name="urgency_id" value="HIGH"/>
+            <column name="approver_id" valueNumeric="5"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-ticket5" author="PSavchits">
+        <insert tableName="ticket">
+            <column name="name" value="LTicket 11"/>
+            <column name="description" value="Ticket Description"/>
+            <column name="created_on" valueDate="2023-12-12T12:00:00"/>
+            <column name="desired_resolution_date" valueDate="2025-12-01T12:00:00"/>
+            <column name="assignee_id" valueNumeric="3"/>
+            <column name="owner_id" valueNumeric="5"/>
+            <column name="state_id" value="NEW"/>
+            <column name="category_id" valueNumeric="5"/>
+            <column name="urgency_id" value="AVERAGE"/>
+            <column name="approver_id" valueNumeric="3"/>
+        </insert>
+    </changeSet>
+    <changeSet id="create-ticket6" author="PSavchits">
+        <insert tableName="ticket">
+            <column name="name" value="Aicket 0"/>
+            <column name="description" value="Ticket Description"/>
+            <column name="created_on" valueDate="2023-12-12T12:00:00"/>
+            <column name="desired_resolution_date" valueDate="2024-01-01T12:00:00"/>
+            <column name="assignee_id" valueNumeric="5"/>
+            <column name="owner_id" valueNumeric="5"/>
+            <column name="state_id" value="DONE"/>
+            <column name="category_id" valueNumeric="6"/>
+            <column name="urgency_id" value="LOW"/>
+            <column name="approver_id" valueNumeric="1"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
