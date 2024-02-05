@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -23,7 +24,7 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final TicketRepository ticketRepository;
 
-    public List<Comment> getCommentsByTicket(int ticketId) {
+    public Set<Comment> getCommentsByTicket(int ticketId) {
         return commentRepository.findCommentsByTicketId(ticketId);
     }
 

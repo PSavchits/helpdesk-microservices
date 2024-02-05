@@ -11,7 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -30,6 +30,6 @@ public class TicketDTO {
     private String category;
     private Urgency urgency;
     private User approver;
-    private List<MultipartFile> attachments;
+    private Set<MultipartFile> attachments;
     private String commentText;
 }

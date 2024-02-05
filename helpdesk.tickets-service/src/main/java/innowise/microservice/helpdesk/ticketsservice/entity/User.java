@@ -48,8 +48,6 @@ public class User implements UserDetails {
     )
     private String email;
 
-    @Pattern(regexp = "^(?=.*\\d)", message = "Password must contain at least one digit")
-    @Size(min = 6, max = 20, message = "Password length must be between 6 and 20 characters")
     private String password;
 
     @Enumerated(EnumType.STRING)

@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -23,6 +24,6 @@ public class TicketOverviewDTO {
     private User currentUser;
     private Ticket ticket;
     private Category category;
-    private List<Attachment> attachments;
-    private List<Comment> comments;
+    private Set<Attachment> attachments;
+    private Set<Comment> comments;
 }

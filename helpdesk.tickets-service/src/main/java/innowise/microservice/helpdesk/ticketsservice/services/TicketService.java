@@ -98,7 +98,6 @@ public class TicketService {
         Ticket ticket = ticketMapper.ticketDtoToTicket(ticketDTO, creator, category);
 
         ticket.getAttachments().addAll(attachmentService.attachFiles(files, ticket, creator));
-
         ticket.getComments().addAll(commentService.attachComments(ticketDTO, creator, ticket));
 
         ticketRepository.save(ticket);
@@ -109,14 +108,12 @@ public class TicketService {
     public void updateTicket(int ticketId, TicketDTO editedTicketDTO, User editor, List<MultipartFile> files) {
         Ticket existingTicket = ticketRepository.findTicketById(ticketId)
                 .orElseThrow(TicketNotFoundException::new);
-
         Category category = categoryRepository.findByName(editedTicketDTO.getCategory())
                 .orElseThrow(() -> new CategoryNotFoundException(editedTicketDTO.getCategory()));
 
         ticketMapper.updateTicketFromDto(editedTicketDTO, existingTicket, category);
 
         existingTicket.getAttachments().addAll(attachmentService.attachFiles(files, existingTicket, editor));
-
         existingTicket.getComments().addAll(commentService.attachComments(editedTicketDTO, editor, existingTicket));
 
         ticketRepository.save(existingTicket);
@@ -132,8 +129,6 @@ public class TicketService {
         String oldState = String.valueOf(ticket.getState());
         ticket.setState(newState);
 
-        String description = "Ticket Status is changed from " + oldState + " to " + newState;
-
         if (newState == State.CANCELED || newState == State.IN_PROGRESS) {
             ticket.setAssignee(editor);
         }
@@ -142,11 +137,11 @@ public class TicketService {
             ticket.setApprover(editor);
         }
 
-        emailService.sendEmail(ticket.getOwner().getEmail(), id, newState);
-
         ticketRepository.save(ticket);
 
-        HistoryDTO historyDTO = historyMapper.toHistoryDTO(editor.getId(), ticket.getId(), CHANGE_STATE_ACTION, description);
+        HistoryDTO historyDTO = historyMapper.toHistoryDTO(editor.getId(), ticket.getId(), CHANGE_STATE_ACTION,
+                "Ticket Status is changed from " + oldState + " to " + newState);
+        emailService.sendEmail(ticket.getOwner().getEmail(), id, newState);
         messageSender.sendMessage(historyDTO);
     }
 
@@ -211,15 +206,13 @@ public class TicketService {
 
         Ticket ticket = getTicketById(id)
                 .orElseThrow(TicketNotFoundException::new);
-
         Category category = categoryService.getCategoryById(id)
                 .orElseThrow(() -> new CategoryNotFoundException(id));
-
         Feedback feedback = feedbackService.getFeedbackByTicketId(id)
                 .orElseThrow(() -> new FeedbackNotFoundException(id));
 
-        List<Attachment> attachments = attachmentService.getAttachmentsByTicketId(ticket);
-        List<Comment> comments = commentService.getCommentsByTicket(ticket.getId());
+        Set<Attachment> attachments = attachmentService.getAttachmentsByTicketId(ticket);
+        Set<Comment> comments = commentService.getCommentsByTicket(ticket.getId());
 
         return TicketOverviewDTO.builder()
                 .feedback(feedback)

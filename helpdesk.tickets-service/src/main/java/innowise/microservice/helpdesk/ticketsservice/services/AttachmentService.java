@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static innowise.microservice.helpdesk.ticketsservice.util.Constants.ATTACH_FILE_ACTION;
 
@@ -39,8 +40,8 @@ public class AttachmentService {
     private static final List<String> ALLOWED_EXTENSIONS = List.of("pdf", "doc", "docx", "png", "jpeg", "jpg");
     private static final Long MAX_FILE_SIZE = 5242880L;
 
-    public List<Attachment> getAttachmentsByTicketId(Ticket ticket) {
-        return (ticket != null) ? ticket.getAttachments() : Collections.emptyList();
+    public Set<Attachment> getAttachmentsByTicketId(Ticket ticket) {
+        return (ticket != null) ? ticket.getAttachments() : Collections.emptySet();
     }
 
     public Optional<Attachment> getAttachmentById(int attachmentId) {

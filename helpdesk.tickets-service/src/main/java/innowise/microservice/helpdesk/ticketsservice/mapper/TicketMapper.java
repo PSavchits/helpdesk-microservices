@@ -20,8 +20,8 @@ public interface TicketMapper {
     @Mapping(target = "owner", source = "creator")
     @Mapping(target = "approver", ignore = true)
     @Mapping(target = "category", source = "category")
-    @Mapping(target = "attachments", expression = "java(new java.util.ArrayList())")
-    @Mapping(target = "comments", expression = "java(new java.util.ArrayList())")
+    @Mapping(target = "attachments", expression = "java(new java.util.HashSet<>())")
+    @Mapping(target = "comments", expression = "java(new java.util.HashSet<>())")
     Ticket ticketDtoToTicket(TicketDTO ticketDTO, User creator, Category category);
 
     @Mapping(target = "id", ignore = true)
@@ -33,8 +33,8 @@ public interface TicketMapper {
     @Mapping(target = "approver", ignore = true)
     @Mapping(target = "category", source = "category")
     @Mapping(target = "urgency", source = "ticketDTO.urgency")
-    @Mapping(target = "attachments", ignore = true)
-    @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "attachments", expression = "java(new java.util.HashSet<>())")
+    @Mapping(target = "comments", expression = "java(new java.util.HashSet<>())")
     void updateTicketFromDto(TicketDTO ticketDTO, @MappingTarget Ticket ticket, Category category);
 }
 
