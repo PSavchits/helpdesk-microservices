@@ -147,7 +147,10 @@ public class TicketService {
 
     public List<TicketReadDTO> getMyTickets() {
         User user = userService.getUserFromContextHolder();
-        return ticketRepository.getTicketsByOwner(user);
+        List<Ticket> tickets = ticketRepository.getTicketsByOwner(user);
+        return tickets.stream()
+                .map(ticket -> modelMapper.map(ticket, TicketReadDTO.class))
+                .toList();
     }
 
     public List<TicketReadDTO> getTicketsByUser() {

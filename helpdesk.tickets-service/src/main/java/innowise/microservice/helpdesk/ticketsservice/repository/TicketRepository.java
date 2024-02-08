@@ -27,5 +27,5 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     Optional<Ticket> findTicketById(int id);
 
-    List<TicketReadDTO> getTicketsByOwner(User user);
+    List<Ticket> getTicketsByOwner(User user);
 }
