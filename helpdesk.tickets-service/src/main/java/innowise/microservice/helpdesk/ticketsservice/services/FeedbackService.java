@@ -29,8 +29,7 @@ public class FeedbackService {
     }
 
     public Optional<Feedback> getFeedbackByTicketId(int id) {
-        return Optional.ofNullable(feedbackRepository.findFeedbackByTicketId(id)
-                .orElseThrow(() -> new FeedbackNotFoundException(id)));
+        return feedbackRepository.findFeedbackByTicketId(id);
     }
 
     public void createFeedback(FeedbackDTO feedbackDTO, User creator) {

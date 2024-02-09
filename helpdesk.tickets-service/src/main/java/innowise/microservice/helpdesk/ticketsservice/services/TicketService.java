@@ -8,13 +8,11 @@ import innowise.microservice.helpdesk.ticketsservice.dto.TicketReadDTO;
 import innowise.microservice.helpdesk.ticketsservice.entity.Attachment;
 import innowise.microservice.helpdesk.ticketsservice.entity.Category;
 import innowise.microservice.helpdesk.ticketsservice.entity.Comment;
-import innowise.microservice.helpdesk.ticketsservice.entity.Feedback;
 import innowise.microservice.helpdesk.ticketsservice.entity.Ticket;
 import innowise.microservice.helpdesk.ticketsservice.entity.User;
 import innowise.microservice.helpdesk.ticketsservice.enums.Role;
 import innowise.microservice.helpdesk.ticketsservice.enums.State;
 import innowise.microservice.helpdesk.ticketsservice.exception.CategoryNotFoundException;
-import innowise.microservice.helpdesk.ticketsservice.exception.FeedbackNotFoundException;
 import innowise.microservice.helpdesk.ticketsservice.exception.TicketNotFoundException;
 import innowise.microservice.helpdesk.ticketsservice.mapper.HistoryMapper;
 import innowise.microservice.helpdesk.ticketsservice.mapper.TicketMapper;
@@ -53,8 +51,6 @@ public class TicketService {
     private final CommentService commentService;
     private final UserService userService;
     private final ModelMapper modelMapper;
-    private final FeedbackService feedbackService;
-    private final CategoryService categoryService;
     private final MessageSender messageSender;
     private final HistoryMapper historyMapper;
 
@@ -206,28 +202,23 @@ public class TicketService {
 
     public TicketOverviewDTO getTicketOverviewById(int id, Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
-
         Ticket ticket = getTicketById(id)
                 .orElseThrow(TicketNotFoundException::new);
-        Category category = categoryService.getCategoryById(id)
-                .orElseThrow(() -> new CategoryNotFoundException(id));
-        Feedback feedback = feedbackService.getFeedbackByTicketId(id)
-                .orElseThrow(() -> new FeedbackNotFoundException(id));
 
         Set<Attachment> attachments = attachmentService.getAttachmentsByTicketId(ticket);
         Set<Comment> comments = commentService.getCommentsByTicket(ticket.getId());
 
         return TicketOverviewDTO.builder()
-                .feedback(feedback)
+                .feedback(ticket.getFeedback())
                 .currentUser(currentUser)
                 .ticket(ticket)
-                .category(category)
+                .category(ticket.getCategory())
                 .attachments(attachments)
                 .comments(comments)
                 .build();
     }
 
-    public void sendCreateUpdateMessage(Ticket ticket, User creator, String action){
+    public void sendCreateUpdateMessage(Ticket ticket, User creator, String action) {
         HistoryDTO historyDTO = historyMapper.toHistoryDTO(ticket.getId(), creator.getId(), action);
         messageSender.sendMessage(historyDTO);
     }
