@@ -7,9 +7,9 @@ import innowise.microservice.helpdesk.ticketsservice.entity.User;
 import innowise.microservice.helpdesk.ticketsservice.exception.FeedbackNotFoundException;
 import innowise.microservice.helpdesk.ticketsservice.exception.TicketNotFoundException;
 import innowise.microservice.helpdesk.ticketsservice.mapper.FeedbackMapper;
+import innowise.microservice.helpdesk.ticketsservice.mq.MessageSender;
 import innowise.microservice.helpdesk.ticketsservice.repository.FeedbackRepository;
 import innowise.microservice.helpdesk.ticketsservice.repository.TicketRepository;
-import innowise.microservice.helpdesk.ticketsservice.services.email.EmailService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +20,10 @@ import java.util.Optional;
 public class FeedbackService {
     private final FeedbackRepository feedbackRepository;
     private final FeedbackMapper feedbackMapper;
-    private final EmailService emailService;
+    private final MessageSender messageSender;
     private final TicketRepository ticketRepository;
 
-    public Optional<Feedback> getFeedbackById(int id) {
+    public Optional<Feedback> getFeedbackById(Long id) {
         return Optional.ofNullable(feedbackRepository.findFeedbackById(id)
                 .orElseThrow(() -> new FeedbackNotFoundException(id)));
     }
@@ -37,7 +37,7 @@ public class FeedbackService {
                 .orElseThrow(TicketNotFoundException::new);
         Feedback feedback = feedbackMapper.feedbackDTOtoFeedback(feedbackDTO, existingTicket, creator);
 
-        emailService.sendFeedbackEmail(existingTicket.getOwner().getEmail(), feedbackDTO.getTicketId());
+        messageSender.sendFeedbackEmail(existingTicket.getOwner().getEmail(), feedbackDTO.getTicketId());
 
         feedbackRepository.save(feedback);
     }

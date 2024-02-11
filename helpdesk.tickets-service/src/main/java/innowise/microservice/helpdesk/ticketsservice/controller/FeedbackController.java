@@ -31,7 +31,7 @@ public class FeedbackController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Feedback>> getFeedback(@PathVariable("id") int id) {
+    public ResponseEntity<Optional<Feedback>> getFeedback(@PathVariable("id") long id) {
         Optional<Feedback> feedback = feedbackService.getFeedbackById(id);
         return new ResponseEntity<>(feedback, HttpStatus.OK);
     }

@@ -60,11 +60,11 @@ public class AttachmentService {
                     attachment.setName(file.getOriginalFilename());
                     attachment.setBlob(file.getBytes());
 
-                    attachments.add(attachment);
-
                     String description = "File is attached: " + file.getOriginalFilename();
                     HistoryDTO historyDTO = historyMapper.toHistoryDTO(editor.getId(), ticket.getId(), ATTACH_FILE_ACTION, description);
                     messageSender.sendMessage(historyDTO);
+
+                    ticket.getAttachments().add(attachment);
                 }
             } catch (IOException e) {
                 log.error("Attachment error", e);

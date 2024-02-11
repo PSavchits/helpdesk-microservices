@@ -1,10 +1,11 @@
 package innowise.microservice.helpdesk.ticketsservice.repository;
 
-import innowise.microservice.helpdesk.ticketsservice.dto.TicketReadDTO;
 import innowise.microservice.helpdesk.ticketsservice.entity.Ticket;
 import innowise.microservice.helpdesk.ticketsservice.entity.User;
 import innowise.microservice.helpdesk.ticketsservice.enums.Role;
 import innowise.microservice.helpdesk.ticketsservice.enums.State;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -13,19 +14,21 @@ import java.util.Optional;
 public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     List<Ticket> findByOwner(User owner);
 
-    List<Ticket> findByStateAndOwnerRole(State state, Role role);
+    Page<Ticket> findByOwner(User owner, Pageable pageable);
 
-    List<Ticket> findByOwnerAndApprover(User owner, User approver);
+    Page<Ticket> findByStateAndOwnerRole(State state, Role role, Pageable pageable);
 
-    List<Ticket> findByApproverAndState(User approver, State state);
+    Page<Ticket> findByOwnerAndApprover(User owner, User approver, Pageable pageable);
 
-    List<Ticket> findByAssigneeAndState(User assignee, State state);
+    Page<Ticket> findByApproverAndState(User approver, State state, Pageable pageable);
+
+    Page<Ticket> findByAssigneeAndState(User assignee, State state, Pageable pageable);
 
     List<Ticket> findByAssignee(User assignee);
 
-    List<Ticket> findByOwnerRoleInAndState(List<Role> ownerRoles, State state);
+    Page<Ticket> findByOwnerRoleInAndState(List<Role> ownerRoles, State state, Pageable pageable);
 
     Optional<Ticket> findTicketById(int id);
 
-    List<Ticket> getTicketsByOwner(User user);
+    Page<Ticket> getTicketsByOwner(User user, Pageable pageable);
 }

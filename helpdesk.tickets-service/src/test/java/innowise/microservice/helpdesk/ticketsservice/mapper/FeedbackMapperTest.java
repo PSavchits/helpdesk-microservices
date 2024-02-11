@@ -20,7 +20,6 @@ class FeedbackMapperTest {
         FeedbackDTO feedbackDTO = MapperHelper.createFeedbackDTO();
 
         Ticket ticket = new Ticket();
-
         User creator = new User();
 
         Feedback feedback = feedbackMapper.feedbackDTOtoFeedback(feedbackDTO, ticket, creator);

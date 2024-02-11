@@ -1,23 +1,30 @@
 package innowise.microservice.helpdesk.ticketsservice.mapper;
 
 import innowise.microservice.helpdesk.ticketsservice.dto.HistoryDTO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface HistoryMapper {
+import java.time.LocalDate;
 
-    @Mapping(target = "created", expression = "java(java.time.LocalDate.now())")
-    @Mapping(target = "action", source = "action")
-    @Mapping(target = "ticketId", source = "ticketId")
-    @Mapping(target = "userId", source = "userId")
-    @Mapping(target = "description", source = "action")
-    HistoryDTO toHistoryDTO(Integer userId, Integer ticketId, String action);
+@Component
+public class HistoryMapper {
 
-    @Mapping(target = "created", expression = "java(java.time.LocalDate.now())")
-    @Mapping(target = "action", source = "action")
-    @Mapping(target = "ticketId", source = "ticketId")
-    @Mapping(target = "userId", source = "userId")
-    @Mapping(target = "description", source = "description")
-    HistoryDTO toHistoryDTO(Integer userId, Integer ticketId, String action, String description);
+    public HistoryDTO toHistoryDTO(Integer userId, Integer ticketId, String action) {
+        return HistoryDTO.builder()
+                .created(LocalDate.now())
+                .action(action)
+                .ticketId(ticketId)
+                .userId(userId)
+                .description(action)
+                .build();
+    }
+
+    public HistoryDTO toHistoryDTO(Integer userId, Integer ticketId, String action, String description) {
+        return HistoryDTO.builder()
+                .created(LocalDate.now())
+                .action(action)
+                .ticketId(ticketId)
+                .userId(userId)
+                .description(description)
+                .build();
+    }
 }

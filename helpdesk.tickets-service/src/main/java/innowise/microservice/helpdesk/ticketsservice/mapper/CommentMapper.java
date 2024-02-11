@@ -5,23 +5,26 @@ import innowise.microservice.helpdesk.ticketsservice.dto.TicketDTO;
 import innowise.microservice.helpdesk.ticketsservice.entity.Comment;
 import innowise.microservice.helpdesk.ticketsservice.entity.Ticket;
 import innowise.microservice.helpdesk.ticketsservice.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface CommentMapper {
+import java.time.LocalDate;
+@Component
+public class CommentMapper {
+    public Comment ticketDtoToComment(TicketDTO ticketDTO, User creator, Ticket ticket) {
+        return Comment.builder()
+                .user(creator)
+                .text(ticketDTO.getCommentText())
+                .date(LocalDate.now())
+                .ticket(ticket)
+                .build();
+    }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", source = "creator")
-    @Mapping(target = "text", source = "ticketDTO.commentText")
-    @Mapping(target = "date", expression = "java(java.time.LocalDate.now())")
-    @Mapping(target = "ticket", source = "ticket")
-    Comment ticketDtoToComment(TicketDTO ticketDTO, User creator, Ticket ticket);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", source = "creator")
-    @Mapping(target = "text", source = "commentDTO.text")
-    @Mapping(target = "date", expression = "java(java.time.LocalDate.now())")
-    @Mapping(target = "ticket", source = "ticket")
-    Comment commentDtoToComment(CommentDTO commentDTO, User creator, Ticket ticket);
+    public Comment commentDtoToComment(CommentDTO commentDTO, User creator, Ticket ticket) {
+        return Comment.builder()
+                .user(creator)
+                .text(commentDTO.getText())
+                .date(LocalDate.now())
+                .ticket(ticket)
+                .build();
+    }
 }

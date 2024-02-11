@@ -13,12 +13,14 @@ import innowise.microservice.helpdesk.ticketsservice.mapper.TicketMapper;
 import innowise.microservice.helpdesk.ticketsservice.mq.MessageSender;
 import innowise.microservice.helpdesk.ticketsservice.repository.CategoryRepository;
 import innowise.microservice.helpdesk.ticketsservice.repository.TicketRepository;
-import innowise.microservice.helpdesk.ticketsservice.services.email.EmailService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
@@ -46,8 +48,6 @@ class TicketServiceTest {
     @Mock
     private HistoryMapper historyMapper;
     @Mock
-    private EmailService emailService;
-    @Mock
     private AttachmentService attachmentService;
     @Mock
     private CommentService commentService;
@@ -55,50 +55,68 @@ class TicketServiceTest {
     private MessageSender messageSender;
 
     @Test
-    void getTicketsByCreatorAndApprover_shouldReturnListOfTickets() {
+    void getTicketsByCreatorAndApprover_shouldReturnPageOfTickets() {
         User creator = new User();
         User approver = new User();
-        when(ticketRepository.findByOwnerAndApprover(creator, approver)).thenReturn(Arrays.asList(new Ticket(), new Ticket()));
+        int page = 0;
+        int size = 10;
 
-        List<Ticket> tickets = ticketService.getTicketsByCreatorAndApprover(creator, approver);
+        Page<Ticket> mockedPage = new PageImpl<>(Arrays.asList(new Ticket(), new Ticket()));
+        when(ticketRepository.findByOwnerAndApprover(creator, approver, PageRequest.of(page, size))).thenReturn(mockedPage);
 
-        assertEquals(2, tickets.size());
-        verify(ticketRepository).findByOwnerAndApprover(creator, approver);
+        Page<Ticket> ticketsPage = ticketService.getTicketsByCreatorAndApprover(creator, approver, page, size);
+
+        assertEquals(2, ticketsPage.getContent().size());
+        verify(ticketRepository).findByOwnerAndApprover(creator, approver, PageRequest.of(page, size));
     }
 
+
     @Test
-    void getTicketsByApproverAndState_shouldReturnListOfTickets() {
+    void getTicketsByApproverAndState_shouldReturnPageOfTickets() {
         User approver = new User();
-        State state = State.APPROVED;
-        when(ticketRepository.findByApproverAndState(approver, state)).thenReturn(Arrays.asList(new Ticket(), new Ticket()));
+        State state = State.NEW;
+        int page = 0;
+        int size = 10;
 
-        List<Ticket> tickets = ticketService.getTicketsByApproverAndState(approver, state);
+        Page<Ticket> mockedPage = new PageImpl<>(Arrays.asList(new Ticket(), new Ticket()));
+        when(ticketRepository.findByApproverAndState(approver, state, PageRequest.of(page, size))).thenReturn(mockedPage);
 
-        assertEquals(2, tickets.size());
-        verify(ticketRepository).findByApproverAndState(approver, state);
+        Page<Ticket> ticketsPage = ticketService.getTicketsByApproverAndState(approver, state, page, size);
+
+        assertEquals(2, ticketsPage.getContent().size());
+        verify(ticketRepository).findByApproverAndState(approver, state, PageRequest.of(page, size));
     }
 
     @Test
-    void getApprovedTicketsCreatedByEmployeesAndManagers_shouldReturnListOfTickets() {
-        when(ticketRepository.findByOwnerRoleInAndState(any(), any())).thenReturn(Arrays.asList(new Ticket(), new Ticket()));
+    void getApprovedTicketsCreatedByEmployeesAndManagers_shouldReturnPageOfTickets() {
+        int page = 0;
+        int size = 10;
 
-        List<Ticket> tickets = ticketService.getApprovedTicketsCreatedByEmployeesAndManagers();
+        Page<Ticket> mockedPage = new PageImpl<>(Arrays.asList(new Ticket(), new Ticket()));
+        when(ticketRepository.findByOwnerRoleInAndState(Arrays.asList(Role.EMPLOYEE, Role.MANAGER), State.APPROVED, PageRequest.of(page, size))).thenReturn(mockedPage);
 
-        assertEquals(2, tickets.size());
-        verify(ticketRepository).findByOwnerRoleInAndState(Arrays.asList(Role.EMPLOYEE, Role.MANAGER), State.APPROVED);
+        Page<Ticket> ticketsPage = ticketService.getApprovedTicketsCreatedByEmployeesAndManagers(page, size);
+
+        assertEquals(2, ticketsPage.getContent().size());
+        verify(ticketRepository).findByOwnerRoleInAndState(Arrays.asList(Role.EMPLOYEE, Role.MANAGER), State.APPROVED, PageRequest.of(page, size));
     }
 
     @Test
-    void getTicketsByAssigneeAndState_shouldReturnListOfTickets() {
+    void getTicketsByAssigneeAndState_shouldReturnPageOfTickets() {
         User assignee = new User();
         State state = State.IN_PROGRESS;
-        when(ticketRepository.findByAssigneeAndState(assignee, state)).thenReturn(Arrays.asList(new Ticket(), new Ticket()));
+        int page = 0;
+        int size = 10;
 
-        List<Ticket> tickets = ticketService.getTicketsByAssigneeAndState(assignee, state);
+        Page<Ticket> mockedPage = new PageImpl<>(Arrays.asList(new Ticket(), new Ticket()));
+        when(ticketRepository.findByAssigneeAndState(assignee, state, PageRequest.of(page, size))).thenReturn(mockedPage);
 
-        assertEquals(2, tickets.size());
-        verify(ticketRepository).findByAssigneeAndState(assignee, state);
+        Page<Ticket> ticketsPage = ticketService.getTicketsByAssigneeAndState(assignee, state, page, size);
+
+        assertEquals(2, ticketsPage.getContent().size());
+        verify(ticketRepository).findByAssigneeAndState(assignee, state, PageRequest.of(page, size));
     }
+
 
     @Test
     void getTicketsByAssignee_shouldReturnListOfTickets() {
@@ -123,15 +141,21 @@ class TicketServiceTest {
     }
 
     @Test
-    void getNewTicketsWithEmployeeOwners_shouldReturnListOfTickets() {
+    void getNewTicketsWithEmployeeOwners_shouldReturnPageOfTickets() {
         State state = State.NEW;
-        when(ticketRepository.findByStateAndOwnerRole(state, Role.EMPLOYEE)).thenReturn(Arrays.asList(new Ticket(), new Ticket()));
+        Role role = Role.EMPLOYEE;
+        int page = 0;
+        int size = 10;
 
-        List<Ticket> tickets = ticketService.getNewTicketsWithEmployeeOwners(state, Role.EMPLOYEE);
+        Page<Ticket> mockedPage = new PageImpl<>(Arrays.asList(new Ticket(), new Ticket()));
+        when(ticketRepository.findByStateAndOwnerRole(state, role, PageRequest.of(page, size))).thenReturn(mockedPage);
 
-        assertEquals(2, tickets.size());
-        verify(ticketRepository).findByStateAndOwnerRole(state, Role.EMPLOYEE);
+        Page<Ticket> ticketsPage = ticketService.getNewTicketsWithEmployeeOwners(state, role, page, size);
+
+        assertEquals(2, ticketsPage.getContent().size());
+        verify(ticketRepository).findByStateAndOwnerRole(state, role, PageRequest.of(page, size));
     }
+
 
     @Test
     void getTicketsByOwner_shouldReturnListOfTickets() {

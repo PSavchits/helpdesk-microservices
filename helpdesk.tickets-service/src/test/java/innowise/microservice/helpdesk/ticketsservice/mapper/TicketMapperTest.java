@@ -22,7 +22,6 @@ class TicketMapperTest {
     @Test
     void ticketDtoToTicket_shouldReturnTicket() {
         TicketDTO ticketDTO = TicketServiceTestHelper.createTicketDTO();
-
         User creator = new User();
         Category category = new Category();
 
@@ -37,26 +36,23 @@ class TicketMapperTest {
         Assertions.assertEquals(creator, ticket.getOwner());
         Assertions.assertNull(ticket.getApprover());
         Assertions.assertEquals(category, ticket.getCategory());
-        Assertions.assertNull(ticket.getAttachments());
-        Assertions.assertNull(ticket.getComments());
+        Assertions.assertNotNull(ticket.getComments());
     }
 
     @Test
     void updateTicketFromDto_shouldUpdateTicket() {
         TicketDTO ticketDTO = TicketServiceTestHelper.createTicketDTO();
-
-        Ticket existingTicket = new Ticket();
         Category category = new Category();
 
-        ticketMapper.updateTicketFromDto(ticketDTO, existingTicket, category);
+        Ticket ticket = ticketMapper.updateTicketFromDto(ticketDTO, category);
 
-        Assertions.assertNotNull(existingTicket);
-        Assertions.assertEquals(TICKET_NAME, existingTicket.getName());
-        Assertions.assertEquals(TICKET_DESCRIPTION, existingTicket.getDescription());
-        Assertions.assertNull(existingTicket.getAssignee());
-        Assertions.assertNull(existingTicket.getOwner());
-        Assertions.assertNull(existingTicket.getApprover());
-        Assertions.assertEquals(category, existingTicket.getCategory());
-        Assertions.assertEquals(Urgency.HIGH, existingTicket.getUrgency());
+        Assertions.assertNotNull(ticket);
+        Assertions.assertEquals(TICKET_NAME, ticket.getName());
+        Assertions.assertEquals(TICKET_DESCRIPTION, ticket.getDescription());
+        Assertions.assertNull(ticket.getAssignee());
+        Assertions.assertNull(ticket.getOwner());
+        Assertions.assertNull(ticket.getApprover());
+        Assertions.assertEquals(category, ticket.getCategory());
+        Assertions.assertEquals(Urgency.HIGH, ticket.getUrgency());
     }
 }

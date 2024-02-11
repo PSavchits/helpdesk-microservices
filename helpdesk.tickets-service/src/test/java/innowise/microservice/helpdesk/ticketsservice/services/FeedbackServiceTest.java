@@ -7,9 +7,9 @@ import innowise.microservice.helpdesk.ticketsservice.entity.User;
 import innowise.microservice.helpdesk.ticketsservice.helpers.FeedbackTestHelper;
 import innowise.microservice.helpdesk.ticketsservice.helpers.TicketServiceTestHelper;
 import innowise.microservice.helpdesk.ticketsservice.mapper.FeedbackMapper;
+import innowise.microservice.helpdesk.ticketsservice.mq.MessageSender;
 import innowise.microservice.helpdesk.ticketsservice.repository.FeedbackRepository;
 import innowise.microservice.helpdesk.ticketsservice.repository.TicketRepository;
-import innowise.microservice.helpdesk.ticketsservice.services.email.EmailService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,19 +30,17 @@ class FeedbackServiceTest {
 
     @Mock
     private FeedbackRepository feedbackRepository;
-
+    @Mock
+    private MessageSender messageSender;
     @Mock
     private FeedbackMapper feedbackMapper;
-
-    @Mock
-    private EmailService emailService;
 
     @Mock
     private TicketRepository ticketRepository;
 
     @Test
     void getFeedbackById_shouldReturnFeedback_whenFeedbackExists() {
-        int feedbackId = 1;
+        Long feedbackId = 1L;
         Feedback expectedFeedback = FeedbackTestHelper.createFeedbackWithId(1L);
         Optional<Feedback> expectedOptionalFeedback = Optional.of(expectedFeedback);
 
@@ -71,7 +69,7 @@ class FeedbackServiceTest {
     }
 
     @Test
-    void createFeedback_shouldCreateFeedbackAndSendEmail_whenTicketExists() {
+    void createFeedback_shouldCreateFeedback_whenTicketExists() {
         int ticketId = 1;
 
         FeedbackDTO feedbackDTO = new FeedbackDTO();
@@ -92,7 +90,6 @@ class FeedbackServiceTest {
 
         verify(ticketRepository).findTicketById(ticketId);
         verify(feedbackMapper).feedbackDTOtoFeedback(feedbackDTO, existingTicket, creator);
-        verify(emailService).sendFeedbackEmail(creator.getEmail(), ticketId);
         verify(feedbackRepository).save(feedback);
     }
 }

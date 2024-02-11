@@ -37,7 +37,7 @@ class FeedbackRepositoryIT {
 
         feedbackRepository.save(EXPECTED_FEEDBACK);
 
-        Optional<Feedback> foundFeedback = feedbackRepository.findFeedbackById(EXPECTED_FEEDBACK.getId().intValue());
+        Optional<Feedback> foundFeedback = feedbackRepository.findFeedbackById(EXPECTED_FEEDBACK.getId());
 
         assertThat(foundFeedback).isPresent();
         assertThat(foundFeedback.get().getRate()).isEqualTo(EXPECTED_FEEDBACK.getRate());

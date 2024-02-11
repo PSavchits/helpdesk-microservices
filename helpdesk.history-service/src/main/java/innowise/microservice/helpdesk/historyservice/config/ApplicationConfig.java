@@ -1,8 +1,6 @@
 package innowise.microservice.helpdesk.historyservice.config;
 
-import innowise.microservice.helpdesk.historyservice.mapper.HistoryMapper;
 import lombok.RequiredArgsConstructor;
-import org.mapstruct.factory.Mappers;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Binding;
@@ -27,11 +25,6 @@ public class ApplicationConfig {
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
-    }
-
-    @Bean
-    public HistoryMapper historyMapper() {
-        return Mappers.getMapper(HistoryMapper.class);
     }
 
     @Bean

@@ -19,11 +19,12 @@ import innowise.microservice.helpdesk.ticketsservice.mapper.TicketMapper;
 import innowise.microservice.helpdesk.ticketsservice.mq.MessageSender;
 import innowise.microservice.helpdesk.ticketsservice.repository.CategoryRepository;
 import innowise.microservice.helpdesk.ticketsservice.repository.TicketRepository;
-import innowise.microservice.helpdesk.ticketsservice.services.email.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +37,7 @@ import java.util.Set;
 
 import static innowise.microservice.helpdesk.ticketsservice.util.Constants.CHANGE_STATE_ACTION;
 import static innowise.microservice.helpdesk.ticketsservice.util.Constants.CREATE_TICKET_ACTION;
+import static innowise.microservice.helpdesk.ticketsservice.util.Constants.MANAGERS_STATES;
 import static innowise.microservice.helpdesk.ticketsservice.util.Constants.UPDATE_TICKET_ACTION;
 
 @Service
@@ -46,7 +48,6 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final CategoryRepository categoryRepository;
     private final TicketMapper ticketMapper;
-    private final EmailService emailService;
     private final AttachmentService attachmentService;
     private final CommentService commentService;
     private final UserService userService;
@@ -58,20 +59,20 @@ public class TicketService {
         return ticketRepository.findByOwner(owner);
     }
 
-    public List<Ticket> getTicketsByCreatorAndApprover(User owner, User approver) {
-        return ticketRepository.findByOwnerAndApprover(owner, approver);
+    public Page<Ticket> getTicketsByCreatorAndApprover(User owner, User approver, int page, int size) {
+        return ticketRepository.findByOwnerAndApprover(owner, approver, PageRequest.of(page, size));
     }
 
-    public List<Ticket> getTicketsByApproverAndState(User approver, State state) {
-        return ticketRepository.findByApproverAndState(approver, state);
+    public Page<Ticket> getTicketsByApproverAndState(User approver, State state, int page, int size) {
+        return ticketRepository.findByApproverAndState(approver, state, PageRequest.of(page, size));
     }
 
-    public List<Ticket> getApprovedTicketsCreatedByEmployeesAndManagers() {
-        return ticketRepository.findByOwnerRoleInAndState(Arrays.asList(Role.EMPLOYEE, Role.MANAGER), State.APPROVED);
+    public Page<Ticket> getApprovedTicketsCreatedByEmployeesAndManagers(int page, int size) {
+        return ticketRepository.findByOwnerRoleInAndState(Arrays.asList(Role.EMPLOYEE, Role.MANAGER), State.APPROVED, PageRequest.of(page, size));
     }
 
-    public List<Ticket> getTicketsByAssigneeAndState(User assignee, State state) {
-        return ticketRepository.findByAssigneeAndState(assignee, state);
+    public Page<Ticket> getTicketsByAssigneeAndState(User assignee, State state, int page, int size) {
+        return ticketRepository.findByAssigneeAndState(assignee, state, PageRequest.of(page, size));
     }
 
     public List<Ticket> getTicketsByAssignee(User assignee) {
@@ -82,8 +83,8 @@ public class TicketService {
         return ticketRepository.findTicketById(id);
     }
 
-    public List<Ticket> getNewTicketsWithEmployeeOwners(State state, Role role) {
-        return ticketRepository.findByStateAndOwnerRole(state, role);
+    public Page<Ticket> getNewTicketsWithEmployeeOwners(State state, Role role, int page, int size) {
+        return ticketRepository.findByStateAndOwnerRole(state, role, PageRequest.of(page, size));
     }
 
     @Transactional
@@ -107,7 +108,7 @@ public class TicketService {
         Category category = categoryRepository.findByName(editedTicketDTO.getCategory())
                 .orElseThrow(() -> new CategoryNotFoundException(editedTicketDTO.getCategory()));
 
-        ticketMapper.updateTicketFromDto(editedTicketDTO, existingTicket, category);
+        ticketMapper.updateTicketFromDto(editedTicketDTO, category);
 
         existingTicket.getAttachments().addAll(attachmentService.attachFiles(files, existingTicket, editor));
         existingTicket.getComments().addAll(commentService.attachComments(editedTicketDTO, editor, existingTicket));
@@ -137,42 +138,41 @@ public class TicketService {
 
         HistoryDTO historyDTO = historyMapper.toHistoryDTO(editor.getId(), ticket.getId(), CHANGE_STATE_ACTION,
                 "Ticket Status is changed from " + oldState + " to " + newState);
-        emailService.sendEmail(ticket.getOwner().getEmail(), id, newState);
+        messageSender.sendEmail(ticket.getOwner().getEmail(), id, newState.toString());
         messageSender.sendMessage(historyDTO);
     }
 
-    public List<TicketReadDTO> getMyTickets() {
+    public List<TicketReadDTO> getMyTickets(int page, int size) {
         User user = userService.getUserFromContextHolder();
-        List<Ticket> tickets = ticketRepository.getTicketsByOwner(user);
-        return tickets.stream()
+        Page<Ticket> ticketPage = ticketRepository.getTicketsByOwner(user, PageRequest.of(page, size));
+        return ticketPage.getContent().stream()
                 .map(ticket -> modelMapper.map(ticket, TicketReadDTO.class))
                 .toList();
     }
 
-    public List<TicketReadDTO> getTicketsByUser() {
+    public List<TicketReadDTO> getTicketsByUser(int page, int size) {
         User user = userService.getUserFromContextHolder();
         return switch (user.getRole()) {
-            case EMPLOYEE -> getTicketsByOwnerId(user);
-            case MANAGER -> getAllManagerTickets(user);
-            case ENGINEER -> getAllEngineerTickets(user);
+            case EMPLOYEE -> getTicketsByOwnerId(user, page, size);
+            case MANAGER -> getAllManagerTickets(user, page, size);
+            case ENGINEER -> getAllEngineerTickets(user, page, size);
         };
     }
 
-    public List<TicketReadDTO> getTicketsByOwnerId(User user) {
-        List<Ticket> tickets = ticketRepository.findByOwner(user);
-        return tickets.stream()
+    public List<TicketReadDTO> getTicketsByOwnerId(User user, int page, int size) {
+        Page<Ticket> ticketPage = ticketRepository.findByOwner(user, PageRequest.of(page, size));
+        return ticketPage.getContent().stream()
                 .map(ticket -> modelMapper.map(ticket, TicketReadDTO.class))
                 .toList();
     }
 
-    public List<TicketReadDTO> getAllManagerTickets(User user) {
-        List<State> states = Arrays.asList(State.APPROVED, State.DECLINED, State.CANCELED, State.IN_PROGRESS, State.DONE);
-        List<Ticket> ticketsByState = states.stream()
-                .flatMap(state -> getTicketsByApproverAndState(user, state).stream())
+    public List<TicketReadDTO> getAllManagerTickets(User user, int page, int size) {
+        List<Ticket> ticketsByState = MANAGERS_STATES.stream()
+                .flatMap(state -> getTicketsByApproverAndState(user, state, page, size).stream())
                 .toList();
 
-        List<Ticket> managerTickets = getTicketsByCreatorAndApprover(user, user);
-        List<Ticket> newTickets = getNewTicketsWithEmployeeOwners(State.NEW, Role.EMPLOYEE);
+        List<Ticket> managerTickets = getTicketsByCreatorAndApprover(user, user, page, size).getContent();
+        List<Ticket> newTickets = getNewTicketsWithEmployeeOwners(State.NEW, Role.EMPLOYEE, page, size).getContent();
 
         Set<Ticket> uniqueTickets = new HashSet<>();
         uniqueTickets.addAll(managerTickets);
@@ -184,12 +184,12 @@ public class TicketService {
                 .toList();
     }
 
-    public List<TicketReadDTO> getAllEngineerTickets(User user) {
+    public List<TicketReadDTO> getAllEngineerTickets(User user, int page, int size) {
         Set<Ticket> uniqueTickets = new HashSet<>();
 
-        List<Ticket> approvedTickets = getApprovedTicketsCreatedByEmployeesAndManagers();
-        List<Ticket> assignedTicketsInProgress = getTicketsByAssigneeAndState(user, State.IN_PROGRESS);
-        List<Ticket> assignedTicketsDone = getTicketsByAssigneeAndState(user, State.DONE);
+        List<Ticket> approvedTickets = getApprovedTicketsCreatedByEmployeesAndManagers(page, size).getContent();
+        List<Ticket> assignedTicketsInProgress = getTicketsByAssigneeAndState(user, State.IN_PROGRESS, page, size).getContent();
+        List<Ticket> assignedTicketsDone = getTicketsByAssigneeAndState(user, State.DONE, page, size).getContent();
 
         uniqueTickets.addAll(approvedTickets);
         uniqueTickets.addAll(assignedTicketsInProgress);

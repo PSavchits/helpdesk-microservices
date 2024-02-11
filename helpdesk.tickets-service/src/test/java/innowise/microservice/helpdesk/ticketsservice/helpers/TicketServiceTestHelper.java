@@ -24,11 +24,8 @@ public class TicketServiceTestHelper {
 
     public static final String CATEGORY = "People Management";
 
-    public static final String ATTACHMENT_NAME = "test_attachment.txt";
-
-    public static final String TEST_PASSWORD = "P@ssword1";
-
     public static final User user = createUser();
+    public static final Category TEST_CATEGORY = createCategory();
 
     public static TicketDTO createTicketDTO() {
         return TicketDTO.builder()
@@ -46,11 +43,9 @@ public class TicketServiceTestHelper {
                 .build();
     }
 
-    public static final Category TEST_CATEGORY = createCategory();
-
     public static Category createCategory() {
         return Category.builder()
-                .name("Test Category")
+                .name("People Management")
                 .build();
     }
 
@@ -66,6 +61,21 @@ public class TicketServiceTestHelper {
                 .category(TEST_CATEGORY)
                 .urgency(HIGH_URGENCY)
                 .approver(new User())
+                .build();
+    }
+
+    public static Ticket createTicketWithUser() {
+        return Ticket.builder()
+                .id(TICKET_ID)
+                .name(TICKET_NAME)
+                .description(TICKET_DESCRIPTION)
+                .desiredResolutionDate(CREATED_DATE)
+                .assignee(user)
+                .owner(user)
+                .state(NEW_STATE)
+                .category(TEST_CATEGORY)
+                .urgency(HIGH_URGENCY)
+                .approver(user)
                 .build();
     }
 

@@ -1,12 +1,7 @@
 package innowise.microservice.helpdesk.ticketsservice.config;
 
-import innowise.microservice.helpdesk.ticketsservice.mapper.CommentMapper;
-import innowise.microservice.helpdesk.ticketsservice.mapper.FeedbackMapper;
-import innowise.microservice.helpdesk.ticketsservice.mapper.HistoryMapper;
-import innowise.microservice.helpdesk.ticketsservice.mapper.TicketMapper;
 import innowise.microservice.helpdesk.ticketsservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.mapstruct.factory.Mappers;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Binding;
@@ -28,7 +23,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static innowise.microservice.helpdesk.ticketsservice.util.Constants.EMAIL_EXCHANGE;
+import static innowise.microservice.helpdesk.ticketsservice.util.Constants.EMAIL_QUEUE;
+import static innowise.microservice.helpdesk.ticketsservice.util.Constants.EMAIL_ROUTING_KEY;
 import static innowise.microservice.helpdesk.ticketsservice.util.Constants.EXCHANGE;
+import static innowise.microservice.helpdesk.ticketsservice.util.Constants.FEEDBACK_EXCHANGE;
+import static innowise.microservice.helpdesk.ticketsservice.util.Constants.FEEDBACK_QUEUE;
+import static innowise.microservice.helpdesk.ticketsservice.util.Constants.FEEDBACK_ROUTING_KEY;
 import static innowise.microservice.helpdesk.ticketsservice.util.Constants.QUEUE;
 import static innowise.microservice.helpdesk.ticketsservice.util.Constants.ROUTING_KEY;
 
@@ -69,28 +70,16 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public TicketMapper ticketMapper() {
-        return Mappers.getMapper(TicketMapper.class);
-    }
-
-    @Bean
-    public CommentMapper commentMapper() {
-        return Mappers.getMapper(CommentMapper.class);
-    }
-
-    @Bean
-    public FeedbackMapper feedbackMapper() {
-        return Mappers.getMapper(FeedbackMapper.class);
-    }
-
-    @Bean
-    public HistoryMapper historyMapper() {
-        return Mappers.getMapper(HistoryMapper.class);
-    }
-
-    @Bean
     public Queue queue() {
         return new Queue(QUEUE);
+    }
+    @Bean
+    public Queue emailQueue() {
+        return new Queue(EMAIL_QUEUE);
+    }
+    @Bean
+    public Queue emailFeedbackQueue() {
+        return new Queue(FEEDBACK_QUEUE);
     }
 
     @Bean
@@ -99,11 +88,35 @@ public class ApplicationConfig {
     }
 
     @Bean
+    public TopicExchange emailExchange() {
+        return new TopicExchange(EMAIL_EXCHANGE);
+    }
+
+    @Bean
+    public TopicExchange emailFeedbackExchange() {
+        return new TopicExchange(FEEDBACK_EXCHANGE);
+    }
+
+    @Bean
     public Binding binding(Queue queue, TopicExchange exchange) {
         return BindingBuilder
                 .bind(queue)
                 .to(exchange)
                 .with(ROUTING_KEY);
+    }
+    @Bean
+    public Binding emailBinding(Queue emailQueue, TopicExchange emailExchange) {
+        return BindingBuilder
+                .bind(emailQueue)
+                .to(emailExchange)
+                .with(EMAIL_ROUTING_KEY);
+    }
+    @Bean
+    public Binding emailFeedbackBinding(Queue emailFeedbackQueue, TopicExchange emailFeedbackExchange) {
+        return BindingBuilder
+                .bind(emailFeedbackQueue)
+                .to(emailFeedbackExchange)
+                .with(FEEDBACK_ROUTING_KEY);
     }
 
     @Bean

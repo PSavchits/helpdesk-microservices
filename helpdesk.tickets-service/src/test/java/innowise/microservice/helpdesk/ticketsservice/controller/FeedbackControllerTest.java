@@ -1,11 +1,11 @@
 package innowise.microservice.helpdesk.ticketsservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import innowise.microservice.helpdesk.ticketsservice.dto.FeedbackDTO;
 import innowise.microservice.helpdesk.ticketsservice.entity.Feedback;
 import innowise.microservice.helpdesk.ticketsservice.entity.User;
 import innowise.microservice.helpdesk.ticketsservice.helpers.TicketServiceTestHelper;
 import innowise.microservice.helpdesk.ticketsservice.services.FeedbackService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,7 +60,7 @@ class FeedbackControllerTest {
 
     @Test
     void getFeedback_shouldReturnOk() throws Exception {
-        int feedbackId = 1;
+        Long feedbackId = 1L;
         Feedback mockFeedback = new Feedback();
 
         when(feedbackService.getFeedbackById(feedbackId)).thenReturn(Optional.of(mockFeedback));

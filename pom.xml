@@ -14,6 +14,7 @@
         <module>helpdesk.tickets-service</module>
         <module>helpdesk-gateway</module>
         <module>helpdesk-config</module>
+        <module>helpdesk.email-service</module>
     </modules>
 
     <properties>

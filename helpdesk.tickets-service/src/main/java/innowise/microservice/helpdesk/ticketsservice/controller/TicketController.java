@@ -14,12 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,8 +35,8 @@ public class TicketController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<String> createTicket(@ModelAttribute TicketDTO ticketDTO,
-                                               @RequestParam(value = "attachments", required = false) List<MultipartFile> attachments,
+    public ResponseEntity<String> createTicket(@RequestPart(value = "ticketDTO") TicketDTO ticketDTO,
+                                               @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments,
                                                @AuthenticationPrincipal User creator) {
         ticketService.createTicket(ticketDTO, creator, attachments);
         return ResponseEntity.ok("Ticket created successfully");
@@ -43,8 +44,8 @@ public class TicketController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> editTicket(@PathVariable("id") int id,
-                                             @ModelAttribute TicketDTO ticketDTO,
-                                             @RequestParam(value = "attachments", required = false) List<MultipartFile> attachments,
+                                             @RequestPart TicketDTO ticketDTO,
+                                             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments,
                                              @AuthenticationPrincipal User creator) {
 
         ticketService.updateTicket(id, ticketDTO, creator, attachments);
@@ -52,20 +53,22 @@ public class TicketController {
     }
 
     @PostMapping("/changeTicketState")
-    public ResponseEntity<String> editTicketState(@ModelAttribute ChangeTicketStateDTO request, @AuthenticationPrincipal User creator) {
+    public ResponseEntity<String> editTicketState(@RequestBody ChangeTicketStateDTO request, @AuthenticationPrincipal User creator) {
         ticketService.editTicketState(request, creator);
         return ResponseEntity.ok("Ticket state edited successfully");
     }
 
     @GetMapping
-    public ResponseEntity<List<TicketReadDTO>> findAllTickets() {
-        List<TicketReadDTO> tickets = ticketService.getTicketsByUser();
+    public ResponseEntity<List<TicketReadDTO>> findAllTickets(@RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "10") int size) {
+        List<TicketReadDTO> tickets = ticketService.getTicketsByUser(page, size);
         return ResponseEntity.ok(tickets);
     }
 
     @GetMapping("/myTickets")
-    public ResponseEntity<List<TicketReadDTO>> getMyTickets() {
-        List<TicketReadDTO> tickets = ticketService.getMyTickets();
+    public ResponseEntity<List<TicketReadDTO>> findMyTickets(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size) {
+        List<TicketReadDTO> tickets = ticketService.getMyTickets(page, size);
         return ResponseEntity.ok(tickets);
     }
 
