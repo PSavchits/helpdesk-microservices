@@ -1,6 +1,7 @@
 package innowise.microservice.helpdesk.ticketsservice.mapper;
 
 import innowise.microservice.helpdesk.ticketsservice.dto.CommentDTO;
+import innowise.microservice.helpdesk.ticketsservice.dto.CommentOverviewDTO;
 import innowise.microservice.helpdesk.ticketsservice.dto.TicketDTO;
 import innowise.microservice.helpdesk.ticketsservice.entity.Comment;
 import innowise.microservice.helpdesk.ticketsservice.entity.Ticket;
@@ -25,6 +26,14 @@ public class CommentMapper {
                 .text(commentDTO.getText())
                 .date(LocalDate.now())
                 .ticket(ticket)
+                .build();
+    }
+
+    public CommentOverviewDTO commentToCommentDto(Comment comment) {
+        return CommentOverviewDTO.builder()
+                .user(comment.getUser().getFirstname())
+                .text(comment.getText())
+                .date(comment.getDate())
                 .build();
     }
 }

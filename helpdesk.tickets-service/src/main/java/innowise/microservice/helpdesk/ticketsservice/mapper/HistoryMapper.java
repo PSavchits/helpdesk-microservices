@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @Component
 public class HistoryMapper {
 
-    public HistoryDTO toHistoryDTO(Integer userId, Integer ticketId, String action) {
+    public HistoryDTO toHistoryDTO(Integer ticketId, Integer userId, String action) {
         return HistoryDTO.builder()
                 .created(LocalDate.now())
                 .action(action)

@@ -36,7 +36,7 @@ public class TicketController {
 
     @PostMapping
     public ResponseEntity<String> createTicket(@RequestPart(value = "ticketDTO") TicketDTO ticketDTO,
-                                               @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments,
+                                               @RequestParam(value = "attachments", required = false) List<MultipartFile> attachments,
                                                @AuthenticationPrincipal User creator) {
         ticketService.createTicket(ticketDTO, creator, attachments);
         return ResponseEntity.ok("Ticket created successfully");
@@ -45,7 +45,7 @@ public class TicketController {
     @PutMapping("/{id}")
     public ResponseEntity<String> editTicket(@PathVariable("id") int id,
                                              @RequestPart TicketDTO ticketDTO,
-                                             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments,
+                                             @RequestParam(value = "attachments", required = false) List<MultipartFile> attachments,
                                              @AuthenticationPrincipal User creator) {
 
         ticketService.updateTicket(id, ticketDTO, creator, attachments);
@@ -73,8 +73,8 @@ public class TicketController {
     }
 
     @GetMapping("/overview/{id}")
-    public ResponseEntity<TicketOverviewDTO> getTicketOverview(@PathVariable("id") int id, Authentication authentication) {
-        TicketOverviewDTO ticketOverview = ticketService.getTicketOverviewById(id, authentication);
+    public ResponseEntity<TicketOverviewDTO> getTicketOverview(@PathVariable("id") int id) {
+        TicketOverviewDTO ticketOverview = ticketService.getTicketOverviewById(id);
         return ResponseEntity.ok(ticketOverview);
     }
 

@@ -1,6 +1,7 @@
 package innowise.microservice.helpdesk.ticketsservice.services;
 
 import innowise.microservice.helpdesk.ticketsservice.dto.CommentDTO;
+import innowise.microservice.helpdesk.ticketsservice.dto.CommentOverviewDTO;
 import innowise.microservice.helpdesk.ticketsservice.dto.TicketDTO;
 import innowise.microservice.helpdesk.ticketsservice.entity.Comment;
 import innowise.microservice.helpdesk.ticketsservice.entity.Ticket;
@@ -13,9 +14,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +27,12 @@ public class CommentService {
 
     public Set<Comment> getCommentsByTicket(int ticketId) {
         return commentRepository.findCommentsByTicketId(ticketId);
+    }
+
+    public Set<CommentOverviewDTO> getCommentsByTicketId(int ticketId) {
+        return commentRepository.findCommentsByTicketId(ticketId)
+                .stream().map(commentMapper::commentToCommentDto)
+                .collect(Collectors.toSet());
     }
 
     public void addComment(CommentDTO commentDTO, User creator) {

@@ -41,10 +41,11 @@ class TicketMapperTest {
 
     @Test
     void updateTicketFromDto_shouldUpdateTicket() {
+        Ticket ticketTest = new Ticket();
         TicketDTO ticketDTO = TicketServiceTestHelper.createTicketDTO();
         Category category = new Category();
 
-        Ticket ticket = ticketMapper.updateTicketFromDto(ticketDTO, category);
+        Ticket ticket = ticketMapper.updateTicketFromDto(ticketDTO, category, ticketTest);
 
         Assertions.assertNotNull(ticket);
         Assertions.assertEquals(TICKET_NAME, ticket.getName());

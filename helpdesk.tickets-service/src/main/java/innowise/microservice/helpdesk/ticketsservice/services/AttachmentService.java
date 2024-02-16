@@ -1,10 +1,12 @@
 package innowise.microservice.helpdesk.ticketsservice.services;
 
+import innowise.microservice.helpdesk.ticketsservice.dto.AttachmentDTO;
 import innowise.microservice.helpdesk.ticketsservice.dto.HistoryDTO;
 import innowise.microservice.helpdesk.ticketsservice.entity.Attachment;
 import innowise.microservice.helpdesk.ticketsservice.entity.Ticket;
 import innowise.microservice.helpdesk.ticketsservice.entity.User;
 import innowise.microservice.helpdesk.ticketsservice.exception.AttachmentNotFoundException;
+import innowise.microservice.helpdesk.ticketsservice.mapper.AttachmentMapper;
 import innowise.microservice.helpdesk.ticketsservice.mapper.HistoryMapper;
 import innowise.microservice.helpdesk.ticketsservice.mq.MessageSender;
 import innowise.microservice.helpdesk.ticketsservice.repository.AttachmentRepository;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static innowise.microservice.helpdesk.ticketsservice.util.Constants.ATTACH_FILE_ACTION;
 
@@ -36,12 +39,15 @@ public class AttachmentService {
     private final AttachmentRepository attachmentRepository;
     private final MessageSender messageSender;
     private final HistoryMapper historyMapper;
+    private final AttachmentMapper attachmentMapper;
 
     private static final List<String> ALLOWED_EXTENSIONS = List.of("pdf", "doc", "docx", "png", "jpeg", "jpg");
     private static final Long MAX_FILE_SIZE = 5242880L;
 
-    public Set<Attachment> getAttachmentsByTicketId(Ticket ticket) {
-        return (ticket != null) ? ticket.getAttachments() : Collections.emptySet();
+    public Set<AttachmentDTO> getAttachmentsByTicketId(int id) {
+        return attachmentRepository.findByTicketId(id)
+                .stream().map(attachmentMapper::mapToDto)
+                .collect(Collectors.toSet());
     }
 
     public Optional<Attachment> getAttachmentById(int attachmentId) {
@@ -64,7 +70,7 @@ public class AttachmentService {
                     HistoryDTO historyDTO = historyMapper.toHistoryDTO(editor.getId(), ticket.getId(), ATTACH_FILE_ACTION, description);
                     messageSender.sendMessage(historyDTO);
 
-                    ticket.getAttachments().add(attachment);
+                    attachments.add(attachment);
                 }
             } catch (IOException e) {
                 log.error("Attachment error", e);

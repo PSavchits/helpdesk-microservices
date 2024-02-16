@@ -5,9 +5,7 @@ import innowise.microservice.helpdesk.ticketsservice.dto.HistoryDTO;
 import innowise.microservice.helpdesk.ticketsservice.dto.TicketDTO;
 import innowise.microservice.helpdesk.ticketsservice.dto.TicketOverviewDTO;
 import innowise.microservice.helpdesk.ticketsservice.dto.TicketReadDTO;
-import innowise.microservice.helpdesk.ticketsservice.entity.Attachment;
 import innowise.microservice.helpdesk.ticketsservice.entity.Category;
-import innowise.microservice.helpdesk.ticketsservice.entity.Comment;
 import innowise.microservice.helpdesk.ticketsservice.entity.Ticket;
 import innowise.microservice.helpdesk.ticketsservice.entity.User;
 import innowise.microservice.helpdesk.ticketsservice.enums.Role;
@@ -108,13 +106,13 @@ public class TicketService {
         Category category = categoryRepository.findByName(editedTicketDTO.getCategory())
                 .orElseThrow(() -> new CategoryNotFoundException(editedTicketDTO.getCategory()));
 
-        ticketMapper.updateTicketFromDto(editedTicketDTO, category);
+        Ticket updatedTicket = ticketMapper.updateTicketFromDto(editedTicketDTO, category, existingTicket);
 
-        existingTicket.getAttachments().addAll(attachmentService.attachFiles(files, existingTicket, editor));
-        existingTicket.getComments().addAll(commentService.attachComments(editedTicketDTO, editor, existingTicket));
+        updatedTicket.getAttachments().addAll(attachmentService.attachFiles(files, updatedTicket, editor));
+        updatedTicket.getComments().addAll(commentService.attachComments(editedTicketDTO, editor, updatedTicket));
 
-        ticketRepository.save(existingTicket);
-        sendCreateUpdateMessage(existingTicket, editor, UPDATE_TICKET_ACTION);
+        ticketRepository.save(updatedTicket);
+        sendCreateUpdateMessage(updatedTicket, editor, UPDATE_TICKET_ACTION);
     }
 
     public void editTicketState(ChangeTicketStateDTO changeTicketStateDTO, User editor) {
@@ -200,22 +198,10 @@ public class TicketService {
                 .toList();
     }
 
-    public TicketOverviewDTO getTicketOverviewById(int id, Authentication authentication) {
-        User currentUser = (User) authentication.getPrincipal();
+    public TicketOverviewDTO getTicketOverviewById(int id) {
         Ticket ticket = getTicketById(id)
                 .orElseThrow(TicketNotFoundException::new);
-
-        Set<Attachment> attachments = attachmentService.getAttachmentsByTicketId(ticket);
-        Set<Comment> comments = commentService.getCommentsByTicket(ticket.getId());
-
-        return TicketOverviewDTO.builder()
-                .feedback(ticket.getFeedback())
-                .currentUser(currentUser)
-                .ticket(ticket)
-                .category(ticket.getCategory())
-                .attachments(attachments)
-                .comments(comments)
-                .build();
+        return ticketMapper.ticketToTicketDto(ticket);
     }
 
     public void sendCreateUpdateMessage(Ticket ticket, User creator, String action) {
