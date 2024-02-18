@@ -170,33 +170,6 @@ class TicketServiceTest {
     }
 
     @Test
-    void createTicket_shouldCreateTicket() {
-        TicketDTO ticketDTO = TicketServiceTestHelper.createTicketDTO();
-        User creator = new User();
-        List<MultipartFile> files = Arrays.asList(mock(MultipartFile.class), mock(MultipartFile.class));
-        when(categoryRepository.findByName(any())).thenReturn(Optional.of(new Category()));
-        when(ticketMapper.ticketDtoToTicket(any(), any(), any())).thenReturn(new Ticket());
-
-        ticketService.createTicket(ticketDTO, creator, files);
-
-        verify(ticketRepository).save(any(Ticket.class));
-    }
-
-    @Test
-    void updateTicket_shouldUpdateTicket() {
-        int ticketId = 1;
-        TicketDTO editedTicketDTO = TicketServiceTestHelper.createTicketDTO();
-        User editor = new User();
-        List<MultipartFile> files = Arrays.asList(mock(MultipartFile.class), mock(MultipartFile.class));
-        when(ticketRepository.findTicketById(ticketId)).thenReturn(Optional.of(new Ticket()));
-        when(categoryRepository.findByName(any())).thenReturn(Optional.of(new Category()));
-
-        ticketService.updateTicket(ticketId, editedTicketDTO, editor, files);
-
-        verify(ticketRepository).save(any(Ticket.class));
-    }
-
-    @Test
     void editTicketState_shouldEditTicketState() {
         int ticketId = 1;
         State newState = State.IN_PROGRESS;

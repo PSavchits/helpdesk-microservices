@@ -79,10 +79,10 @@ public class Ticket {
     private User approver;
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<Attachment> attachments = new HashSet<>();
+    private Set<Attachment> attachments;
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<Comment> comments = new HashSet<>();
+    private Set<Comment> comments;
 
     @OneToOne(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
     private Feedback feedback;

@@ -8,10 +8,8 @@ import innowise.microservice.helpdesk.ticketsservice.entity.Ticket;
 import innowise.microservice.helpdesk.ticketsservice.entity.User;
 import innowise.microservice.helpdesk.ticketsservice.exception.TicketNotFoundException;
 import innowise.microservice.helpdesk.ticketsservice.services.TicketService;
-import innowise.microservice.helpdesk.ticketsservice.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +30,6 @@ import java.util.List;
 public class TicketController {
 
     private final TicketService ticketService;
-    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<String> createTicket(@RequestPart(value = "ticketDTO") TicketDTO ticketDTO,
